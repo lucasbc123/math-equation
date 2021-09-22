@@ -33,6 +33,7 @@ def main():
             print(result)
             
     else:
+        print('Variable solve is still not supported.')        
         equation = function.bracket_solve(equation)
         print(equation)
     
