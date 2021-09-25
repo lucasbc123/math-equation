@@ -74,15 +74,15 @@ class functionClass:
 
     def simple_character_check(self,equation=''):
         count_equals = 0
-
+        message = "All characters are valid."
         if type(equation) is not str:
-            print('Current input: ' + str(type(equation)) + '. Input should be of <str> type.')
-            return False
+            message = 'Current input: ' + str(type(equation)) + '. Input should be of <str> type.'
+            return False, message
         
         equation = equation.replace(self.auxiliar_symbols[0],'')
         if equation == '':
-            print('No equation given.')
-            return False
+            message = "No equation given."
+            return False, message
         else:
             not_accepted = []
             for char in equation:
@@ -92,18 +92,18 @@ class functionClass:
                     count_equals = count_equals + 1
             
             if count_equals > 1:
-                print("Too many equal signs.")
-                return False
+                message = "Too many equal signs."
+                return False, message
 
             if not_accepted == []:
                 equation = equation.replace(',','.')
-                return equation
+                return equation, message
             else:
                 text = ''
                 for aux in not_accepted:
                     text = text + "'" + aux + "' , "
-                print('Not supported symbols: ' + text[:-3])
-                return False
+                message = "Not supported symbols: " + text[:-3]
+                return False, message
     
     def validate_groupers(self,equation):
 
@@ -113,6 +113,8 @@ class functionClass:
         parentheses = [self.opening_groupers[0], self.closing_groupers[0]]
         brackets = [self.opening_groupers[1], self.closing_groupers[1]]
         curly_brackets = [self.opening_groupers[2], self.closing_groupers[2]]
+
+        message = "Brackets are correct."
 
         i = 0
         for char in equation:
@@ -124,14 +126,14 @@ class functionClass:
                 closing_groupers = closing_groupers + 1
                 
                 if closing_groupers > opening_groupers:
-                    print("Unexpected closing brackets at index: " + str(i))
-                    return False
+                    message = "Unexpected closing brackets at index: " + str(i)
+                    return False, message
 
                 if (last_grouper[-1] in parentheses and char not in parentheses) \
                     or (last_grouper[-1] in brackets and char not in brackets) \
                     or (last_grouper[-1] in curly_brackets and char not in curly_brackets):
-                    print("Closing brackets of unexpected type at index : " + str(i))
-                    return False
+                    message = "Closing brackets of unexpected type at index: " + str(i)
+                    return False, message
                 else:
                     last_grouper.pop()
 
@@ -141,14 +143,17 @@ class functionClass:
             for i in range(len(self.opening_groupers)):
                 equation = equation.replace(self.opening_groupers[i],self.opening_groupers[0])
                 equation = equation.replace(self.closing_groupers[i],self.closing_groupers[0])
-            return equation
+            return equation, message
         else:
-            print('Missing one closing bracket.')
-            return False
+            message = "Missing at least one closing bracket."
+            return False, message
 
     def list_transform(self, equation):
+        equation = equation.replace(',','.')
+
         was_number = False
         list_equation = []
+        message = "Equation transformed to list format."
         for char in equation:
             if char not in self.together:
                 list_equation.append(char)
@@ -163,11 +168,11 @@ class functionClass:
         i = 0
         for item in list_equation:
             if item.count('.') > 1:
-                print('The number "' + item + '" is written incorrectly.')
-                return False
+                message = 'The number "' + item + '" is written incorrectly.'
+                return False, message
             elif item == '.':
-                print("There is an isolated number divider ('.' or ',').")
-                return False
+                message = "There is an isolated number divider ('.' or ',')."
+                return False, message
             else:
                 if item[0] == '.':
                     list_equation[i] = '0' + item
@@ -176,9 +181,10 @@ class functionClass:
 
             i = i + 1
 
-        return list_equation    
+        return list_equation, message    
 
     def insert_multiplication_symbol(self, equation):
+        initial_length = len(equation)
         i = 1
         while i < len(equation):
             char = str(equation[i])
@@ -206,14 +212,19 @@ class functionClass:
                 i = i + 1
 
             i = i + 1
-        return equation
+
+        message = "No added multiplication symbols."
+        if len(equation) > initial_length:
+            message = "Number of aditional multiplication symbols added: " + str(len(equation) - initial_length)
+        return equation, message
 
     def simplify_plus_minus(self,equation):
-
         i = 1
+        counter = 0
         while i < len(equation):
 
             if equation[i] in self.plus_minus_symbols and equation[i-1] in self.plus_minus_symbols:
+                counter = counter + 1
                 if equation[i] == equation[i-1]:
                     equation[i] = '+'
                     equation.pop(i-1)
@@ -222,8 +233,10 @@ class functionClass:
                     equation.pop(i-1)
                 i = i - 1
             i = i + 1
-           
-        return equation
+        message = "No plus or minus symbols where changed."            
+        if counter > 0:
+            message = 'Number of plus or minus symbols simplified: ' + str(counter)
+        return equation, message
 
     def simple_solve_preparation(self,equation):
         if self.is_number(equation[0]):
@@ -250,7 +263,7 @@ class functionClass:
         return equation
 
     def full_preparation(self, equation):
-        equation = self.insert_multiplication_symbol(equation)
+        equation = self.insert_multiplication_symbol(equation)[0]
         equation = self.simplify_plus_minus(equation)
         equation = self.simple_solve_preparation(equation)
 

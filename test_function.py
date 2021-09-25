@@ -13,32 +13,42 @@ class TestFunctionClass(unittest.TestCase):
             frozenset({"apple", "banana", "cherry"}),   True,   b"Hello",   bytearray(5),
             memoryview(bytes(5))
         ]
+        correct_message = "Input should be of <str> type."
         for equation in type_list:
             input = str(equation)
-            test = function.simple_character_check(equation)
+            test, message = function.simple_character_check(equation)
             self.assertEqual(test, False,\
                 "input: " + input + " output: " + str(test) + " correct output: False" )
+            self.assertIn(correct_message,message,\
+                "input: " + input + " Error message is incorrect. It should have: " + correct_message)
 
         wrong_example_list = [
             '',
             '  ',
             '         '
         ]
+        correct_message = "No equation given."
 
         for equation in wrong_example_list:
             input = str(equation)
-            test = function.simple_character_check(equation)
+            test, message = function.simple_character_check(equation)
             self.assertEqual(test, False,\
                 "input: " + input + " output: " + str(test) + " correct output: False" )
+            self.assertIn(correct_message,message,\
+                "input: " + input + " Error message is incorrect. It should have: " + correct_message)
 
         wrong_example_list = [
             '1==1', '2=2=2'
         ]
+        correct_message = "Too many equal signs."
+
         for equation in wrong_example_list:
             input = str(equation)
-            test = function.simple_character_check(equation)
+            test, message = function.simple_character_check(equation)
             self.assertEqual(test, False,\
                 "input: " + input + " output: " + str(test) + " correct output: False" )
+            self.assertIn(correct_message,message,\
+                "input: " + input + " Error message is incorrect. It should have: " + correct_message)                
 
         correct_example_list = [
             '2',                '2',
@@ -50,26 +60,65 @@ class TestFunctionClass(unittest.TestCase):
             '1   1',            '11',
             '1.1   +   1,1',    '1.1+1.1'
         ]
+        correct_message = "All characters are valid."
         aux_index = [i*2 for i in range(int(len(correct_example_list)/2))]
         for i in aux_index:
-            test = function.simple_character_check(correct_example_list[i])
+            test, message = function.simple_character_check(correct_example_list[i])
             self.assertEqual(test,correct_example_list[i+1],\
                 "input: " + str(correct_example_list[i]) + " output: " + str(test) + " correct output: " + str(correct_example_list[i+1]))
+            self.assertIn(correct_message,message,\
+                "input: " + input + " Error message is incorrect. It should have: " + correct_message)                                
 
+        wrong_example_list = [
+            "@",    "1+@",  "2*#$%",    "\\",   "1+2(3-4)¨",    "~",    "ç",    "|",    '_'
+        ]
+        correct_message = "Not supported symbols: "
+        for equation in wrong_example_list:
+            input = str(equation)
+            test, message = function.simple_character_check(equation)
+            self.assertEqual(test, False,\
+                "input: " + input + " output: " + str(test) + " correct output: False" )
+            self.assertIn(correct_message,message,\
+                "input: " + input + " Error message is incorrect. It should have: " + correct_message)                
         
 
         
     def test_validate_groupers(self):
         wrong_example_list = [
-            '1+2+(3',   '1+2)+3',   '1+2+[3',   '1+2]+3',   '1+2+{3',   '1+2}+3',   '(1+2]',
-            '(1+2}',    '[1+2)',    '[1+2}',    '{1+2)',    '{1+2]',    '(1+2[1+2)]'
+            '1+2)+3',   '1+2]+3',   '1+2}+3',   '(1+2))',   ']1+2', '[1+2]]',   '(1+2)]'
         ]
-
+        correct_message = "Unexpected closing brackets at index:"
         for equation in wrong_example_list:
             input = str(equation)
-            test = function.validate_groupers(equation)
+            test, message = function.validate_groupers(equation)
             self.assertEqual(test, False,\
-                "input: " + input + " output: " + str(test) + " correct output: False" )    
+                "input: " + input + " output: " + str(test) + " correct output: False" )
+            self.assertIn(correct_message,message,\
+                "input: " + input + " Error message is incorrect. It should have: " + correct_message) 
+
+        wrong_example_list = [
+            '(1+2]',    '(1+2}',    '[1+2)',    '[1+2}',    '{1+2)',    '{1+2]',    '(1+2[1+2)]'
+        ]
+        correct_message = "Closing brackets of unexpected type at index:"
+        for equation in wrong_example_list:
+            input = str(equation)
+            test, message = function.validate_groupers(equation)
+            self.assertEqual(test, False,\
+                "input: " + input + " output: " + str(test) + " correct output: False" )
+            self.assertIn(correct_message,message,\
+                "input: " + input + " Error message is incorrect. It should have: " + correct_message)
+
+        wrong_example_list = [
+            '(2+1', '[1+2*(2+1)',   '2+{1-2'
+        ]
+        correct_message = "Missing at least one closing bracket."
+        for equation in wrong_example_list:
+            input = str(equation)
+            test, message = function.validate_groupers(equation)
+            self.assertEqual(test, False,\
+                "input: " + input + " output: " + str(test) + " correct output: False" )
+            self.assertIn(correct_message,message,\
+                "input: " + input + " Error message is incorrect. It should have: " + correct_message)                
 
         #input, correct output,
         correct_example_list = [
@@ -81,28 +130,41 @@ class TestFunctionClass(unittest.TestCase):
             '[1{2(3)2}1]',      '(1(2(3)2)1)',
             '[1(2{3+1}2)1]',    '(1(2(3+1)2)1)'
         ]
-
+        correct_message = "Brackets are correct."
         aux_index = [i*2 for i in range(int(len(correct_example_list)/2))]
         for i in aux_index:
             input  = str(correct_example_list[i])
             output = str(correct_example_list[i+1])
-            test = function.validate_groupers(correct_example_list[i])
+            test, message = function.validate_groupers(correct_example_list[i])
             self.assertEqual(test,correct_example_list[i+1],\
                 "input: " + input + " output: " + str(test) + " correct output: " +  output)
+            self.assertIn(correct_message,message,\
+                "input: " + input + " Error message is incorrect. It should have: " + correct_message)                
 
     def test_list_transform(self):
         wrong_example_list = [
-            '1.1.*1',
-            '.1.*1',
-            '..1*1',
-            '1*.*1',
+            '1.1.*1',   '.1.*1',    '..1*1'
         ]
-
+        correct_message = "is written incorrectly."
         for equation in wrong_example_list:
             input = str(equation)
-            test = function.list_transform(equation)
+            test, message = function.list_transform(equation)
             self.assertEqual(test, False,\
-                "input: " + input + " output: " + str(test) + " correct output: False" )    
+                "input: " + input + " output: " + str(test) + " correct output: False" )
+            self.assertIn(correct_message,message,\
+                "input: " + input + " Error message is incorrect. It should have: " + correct_message)       
+
+        wrong_example_list = [
+        '1*.*1',    '1*,*2',    '2+,-2',    '+2-.-2',   '1/.^2'
+        ]
+        correct_message = "There is an isolated number divider ('.' or ',')."
+        for equation in wrong_example_list:
+            input = str(equation)
+            test, message = function.list_transform(equation)
+            self.assertEqual(test, False,\
+                "input: " + input + " output: " + str(test) + " correct output: False" )
+            self.assertIn(correct_message,message,\
+                "input: " + input + " Error message is incorrect. It should have: " + correct_message)                                         
 
         correct_example_list = [
             '12',                   ['12'],
@@ -112,36 +174,58 @@ class TestFunctionClass(unittest.TestCase):
             'abc',                  ['a','b','c'],
             '(1+1.-.1*1.1/a^b)',    ['(','1','+','1','-','0.1','*','1.1','/','a','^','b',')']
         ]
-
+        correct_message = "Equation transformed to list format."
         aux_index = [i*2 for i in range(int(len(correct_example_list)/2))]
         for i in aux_index:
             input  = str(correct_example_list[i])
             output = str(correct_example_list[i+1])
-            test = function.list_transform(correct_example_list[i])
+            test, message = function.list_transform(correct_example_list[i])
             self.assertEqual(test,correct_example_list[i+1],\
                 "input: " + input + " output: " + str(test) + " correct output: " +  output)
+            self.assertIn(correct_message,message,\
+                "input: " + input + " Error message is incorrect. It should have: " + correct_message)                                
                 
     def test_insert_multiplication_symbol(self):
         correct_example_list = [
-            ['2'],                                                          ['2'],
-            ['a'],                                                          ['a'],
-            ['a','b'],                                                      ['a','*','b'],
-            ['a','*','b'],                                                  ['a','*','b'],
-            ['a','+','b'],                                                  ['a','+','b'],
-            ['(','2',')','2'],                                              ['(','2',')','*','2'],
-            ['2','(','2',')'],                                              ['2','*','(','2',')'],
-            ['a','2','+','(','a','b',')','a'],                              ['a','*','2','+','(','a','*','b',')','*','a'],
-            ['1.0','-2.0','*','3.0','^','4.0'],                             ['1.0','-2.0','*','3.0','^','4.0'],
-            ['1','a','(','2','b',')','(','2','(','(','a',')','a',')',')'],  ['1','*','a','*','(','2','*','b',')','*','(','2','*','(','(','a',')','*','a',')',')']
+            ['2'],                                                                                  ['2'],
+            ['a'],                                                                                  ['a'],
+            ['a','*','b'],                                                                          ['a','*','b'],
+            ['a','*','b'],                                                                          ['a','*','b'],
+            ['a','+','b'],                                                                          ['a','+','b'],
+            ['(','2',')','*','2'],                                                                  ['(','2',')','*','2'],
+            ['2','*','(','2',')'],                                                                  ['2','*','(','2',')'],
+            ['a','*','2','+','(','a','*','b',')','*','a'],                                          ['a','*','2','+','(','a','*','b',')','*','a'],
+            ['1.0','-2.0','*','3.0','^','4.0'],                                                     ['1.0','-2.0','*','3.0','^','4.0'],
+            ['1','*','a','*','(','2','*','b',')','*','(','2','*','(','(','a',')','*','a',')',')'],  ['1','*','a','*','(','2','*','b',')','*','(','2','*','(','(','a',')','*','a',')',')']
         ]
-
+        correct_message = "No added multiplication symbols."
         aux_index = [i*2 for i in range(int(len(correct_example_list)/2))]
         for i in aux_index:
             input  = str(correct_example_list[i])
             output = str(correct_example_list[i+1])
-            test = function.insert_multiplication_symbol(correct_example_list[i])
+            test, message = function.insert_multiplication_symbol(correct_example_list[i])
             self.assertEqual(test,correct_example_list[i+1],\
                 "input: " + input + " output: " + str(test) + " correct output: " +  output)
+            self.assertIn(correct_message,message,\
+                "input: " + input + " Error message is incorrect. It should have: " + correct_message)    
+
+        correct_example_list = [
+            ['a','b'],                                                      ['a','*','b'],
+            ['(','2',')','2'],                                              ['(','2',')','*','2'],
+            ['2','(','2',')'],                                              ['2','*','(','2',')'],
+            ['a','2','+','(','a','b',')','a'],                              ['a','*','2','+','(','a','*','b',')','*','a'],
+            ['1','a','(','2','b',')','(','2','(','(','a',')','a',')',')'],  ['1','*','a','*','(','2','*','b',')','*','(','2','*','(','(','a',')','*','a',')',')']
+        ]
+        correct_message = "Number of aditional multiplication symbols added:"
+        aux_index = [i*2 for i in range(int(len(correct_example_list)/2))]
+        for i in aux_index:
+            input  = str(correct_example_list[i])
+            output = str(correct_example_list[i+1])
+            test, message = function.insert_multiplication_symbol(correct_example_list[i])
+            self.assertEqual(test,correct_example_list[i+1],\
+                "input: " + input + " output: " + str(test) + " correct output: " +  output)
+            self.assertIn(correct_message,message,\
+                "input: " + input + " Error message is incorrect. It should have: " + correct_message)                                                            
 
     def test_simplify_plus_minus(self):
         correct_example_list = [
@@ -157,7 +241,7 @@ class TestFunctionClass(unittest.TestCase):
         for i in aux_index:
             input  = str(correct_example_list[i])
             output = str(correct_example_list[i+1])
-            test = function.simplify_plus_minus(correct_example_list[i])
+            test, message = function.simplify_plus_minus(correct_example_list[i])
             self.assertEqual(test,correct_example_list[i+1],\
                 "input: " + input + " output: " + str(test) + " correct output: " +  output)
 
