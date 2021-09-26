@@ -203,7 +203,7 @@ class TestFunctionClass(unittest.TestCase):
         for i in aux_index:
             input  = str(correct_example_list[i])
             output = str(correct_example_list[i+1])
-            test, message = function.insert_multiplication_symbol(correct_example_list[i])
+            test, message, _ = function.insert_multiplication_symbol(correct_example_list[i])
             self.assertEqual(test,correct_example_list[i+1],\
                 "input: " + input + " output: " + str(test) + " correct output: " +  output)
             self.assertIn(correct_message,message,\
@@ -221,7 +221,7 @@ class TestFunctionClass(unittest.TestCase):
         for i in aux_index:
             input  = str(correct_example_list[i])
             output = str(correct_example_list[i+1])
-            test, message = function.insert_multiplication_symbol(correct_example_list[i])
+            test, message, _ = function.insert_multiplication_symbol(correct_example_list[i])
             self.assertEqual(test,correct_example_list[i+1],\
                 "input: " + input + " output: " + str(test) + " correct output: " +  output)
             self.assertIn(correct_message,message,\
@@ -232,18 +232,38 @@ class TestFunctionClass(unittest.TestCase):
             ['2'],                                              ['2'],
             ['2','+','2'],                                      ['2','+','2'],
             ['2','-','2'],                                      ['2','-','2'],
+            ['1','+','2','-','3'],                              ['1','+','2','-','3']
+            
+        ]
+        correct_message = "No plus or minus symbols where changed."
+        aux_index = [i*2 for i in range(int(len(correct_example_list)/2))]
+        for i in aux_index:
+            input  = str(correct_example_list[i])
+            output = str(correct_example_list[i+1])
+            test, message, _ = function.simplify_plus_minus(correct_example_list[i])
+            self.assertEqual(test,correct_example_list[i+1],\
+                "input: " + input + " output: " + str(test) + " correct output: " +  output)
+            self.assertIn(correct_message,message,\
+                "input: " + input + " Error message is incorrect. It should have: " + correct_message)              
+
+        correct_example_list = [
+            ['2','-','-','2'],                                  ['2','+','2'],
+            ['2','+','+','2'],                                  ['2','+','2'],
             ['2','+','-','2'],                                  ['2','-','2'],
             ['2','-','+','2'],                                  ['2','-','2'],
             ['-','+','2','+','-','+','2','+','+','-','-','2'],  ['-','2','-','2','+','2'],
             
         ]
+        correct_message = "Number of plus or minus symbols simplified:"
         aux_index = [i*2 for i in range(int(len(correct_example_list)/2))]
         for i in aux_index:
             input  = str(correct_example_list[i])
             output = str(correct_example_list[i+1])
-            test, message = function.simplify_plus_minus(correct_example_list[i])
+            test, message, _ = function.simplify_plus_minus(correct_example_list[i])
             self.assertEqual(test,correct_example_list[i+1],\
-                "input: " + input + " output: " + str(test) + " correct output: " +  output)
+                "input: " + input + " output: " + str(test) + " correct output: " +  output)         
+            self.assertIn(correct_message,message,\
+                "input: " + input + " Error message is incorrect. It should have: " + correct_message)
 
     def test_simple_solve_preparation(self):
         correct_example_list = [
@@ -295,15 +315,31 @@ class TestFunctionClass(unittest.TestCase):
 
     def test_simple_solve(self):
         wrong_example_list = [
-            ['1','/','0'],  ['1','/','0','*','2'],  ['1','*','*','2'],  ['1','/','/','2'],
-            ['1','^','^','2']
+            ['1','/','0'],  ['1','/','0','*','2']
         ]
 
+        correct_message = "divide by zero."
         for equation in wrong_example_list:
             input = str(equation)   
-            test = function.simple_solve(equation)
+            test, message = function.simple_solve(equation)
             self.assertEqual(test, False,\
-                "input: " + input + " output: " + str(test) + " correct output: False" )   
+                "input: " + input + " output: " + str(test) + " correct output: False" )
+            self.assertIn(correct_message,message,\
+                "input: " + input + " Error message is incorrect. It should have: " + correct_message) 
+
+        wrong_example_list = [
+            ['1','*','*','2'],  ['1','/','/','2'],  ['1','^','^','2']
+        ]
+
+        correct_message = "Invalid series of symbols."
+        for equation in wrong_example_list:
+            input = str(equation)   
+            test, message = function.simple_solve(equation)
+            self.assertEqual(test, False,\
+                "input: " + input + " output: " + str(test) + " correct output: False" )
+            self.assertIn(correct_message,message,\
+                "input: " + input + " Error message is incorrect. It should have: " + correct_message)
+
 
         correct_example_list = [
             ['2'],                                                                          ['2.0'],
@@ -318,28 +354,44 @@ class TestFunctionClass(unittest.TestCase):
             ['1','-','2','*','4','/','2','^','1','+','2','-','4','*','2','/','1','^','2'],  ['-9.0'],
             ['2','^','4','*','6','*','8','-','6','+','4','/','2','/','2'],                  ['763.0']
         ]
-
+        correct_message = "Section solved."
         aux_index = [i*2 for i in range(int(len(correct_example_list)/2))]
         for i in aux_index:
             input  = str(correct_example_list[i])
             output = str(correct_example_list[i+1])
-            test = function.simple_solve(correct_example_list[i])
+            test, message = function.simple_solve(correct_example_list[i])
             self.assertEqual(test,correct_example_list[i+1],\
                 "input: " + input + " output: " + str(test) + " correct output: " +  output)
+            self.assertIn(correct_message,message,\
+                "input: " + input + " Error message is incorrect. It should have: " + correct_message)                
         
     def test_bracket_solve(self):
         wrong_example_list = [
-            ['0','/','0'],  ['1','/','0'],  ['1','/','0','*','2'],  ['1','*','*','2'],  ['1','/','/','2'],
-            ['1','^','^','2'],  ['1','/','(','1','-','1',')'],  ['2','+','*','2'],  ['2','-','/','2'],
+            ['0','/','0'],  ['1','/','0'],  ['1','/','0','*','*','2'],  ['1','/','(','1','-','1',')']
+
+        ]
+        correct_message = "divide by zero."
+        for equation in wrong_example_list:
+            input = str(equation)            
+            test, message = function.bracket_solve(equation)
+            self.assertEqual(test, False,\
+                "input: " + input + " output: " + str(test) + " correct output: False" )
+            self.assertIn(correct_message,message,\
+                "input: " + input + " Error message is incorrect. It should have: " + correct_message)
+
+        wrong_example_list = [
+            ['1','*','*','2'],  ['1','/','/','2'],  ['1','^','^','2'],  ['2','+','*','2'],  ['2','-','/','2'],
             ['2','+','^','2']
 
         ]
-
+        correct_message = "Invalid series of symbols."
         for equation in wrong_example_list:
             input = str(equation)            
-            test = function.bracket_solve(equation)
+            test, message = function.bracket_solve(equation)
             self.assertEqual(test, False,\
                 "input: " + input + " output: " + str(test) + " correct output: False" )
+            self.assertIn(correct_message,message,\
+                "input: " + input + " Error message is incorrect. It should have: " + correct_message)                
 
         correct_example_list = [
             ['1'],                                                                                  ['1.0'],
@@ -359,49 +411,57 @@ class TestFunctionClass(unittest.TestCase):
             ['2','^','-','(','1','+','2',')','=','1','/','8'],                                      ['0.125','=','0.125']
         
         ]
-
+        correct_message = "All bracket solved."
         aux_index = [i*2 for i in range(int(len(correct_example_list)/2))]
         for i in aux_index:
             input  = str(correct_example_list[i])
             output = str(correct_example_list[i+1])
-            test = function.bracket_solve(correct_example_list[i])
+            test, message = function.bracket_solve(correct_example_list[i])
             self.assertEqual(test,correct_example_list[i+1],\
                 "input: " + input + " output: " + str(test) + " correct output: " +  output)           
+            self.assertIn(correct_message,message,\
+                "input: " + input + " Error message is incorrect. It should have: " + correct_message)                
 
     def test_get_simple_result(self):
         true_example_list = [
             ['1.0','=','1.0'],  ['-1.0','=','-1.0']
         ]
-
+        correct_message = "Both sides are equal:"
         for equation in true_example_list:
             input = str(equation)            
-            test = function.get_simple_result(equation)
+            test,_,message = function.get_simple_result(equation)
             self.assertEqual(test, True,\
                 "input: " + input + " output: " + str(test) + " correct output: True" )
+            self.assertIn(correct_message,message,\
+                "input: " + input + " Error message is incorrect. It should have: " + correct_message)                
 
         false_example_list = [
             ['1.0','=','2.0'],  ['1.0','=','-1.0']
         ]
-
+        correct_message = "Both sides aren't equal:"
         for equation in false_example_list:
             input = str(equation)            
-            test = function.get_simple_result(equation)
+            test,_,message = function.get_simple_result(equation)
             self.assertEqual(test, False,\
                 "input: " + input + " output: " + str(test) + " correct output: True" )
+            self.assertIn(correct_message,message,\
+                "input: " + input + " Error message is incorrect. It should have: " + correct_message)                
 
         correct_example_list = [
             ['1.0'],            '1.0',
             ['0.12'],           '0.12',
             ['-1.0'],           '-1.0',
         ]
-
+        correct_message = "Answer:"
         aux_index = [i*2 for i in range(int(len(correct_example_list)/2))]
         for i in aux_index:
             input  = str(correct_example_list[i])
             output = str(correct_example_list[i+1])
-            test = function.get_simple_result(correct_example_list[i])
+            _,test,message = function.get_simple_result(correct_example_list[i])
             self.assertEqual(test,correct_example_list[i+1],\
                 "input: " + input + " output: " + str(test) + " correct output: " +  output)   
+            self.assertIn(correct_message,message,\
+                "input: " + input + " Error message is incorrect. It should have: " + correct_message)                                
 
 if __name__ == '__main__':
     unittest.main()

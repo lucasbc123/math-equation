@@ -74,14 +74,14 @@ class functionClass:
 
     def simple_character_check(self,equation=''):
         count_equals = 0
-        message = "All characters are valid."
+        message = "All characters are valid. "
         if type(equation) is not str:
-            message = 'Current input: ' + str(type(equation)) + '. Input should be of <str> type.'
+            message = 'Current input: ' + str(type(equation)) + '. Input should be of <str> type. '
             return False, message
         
         equation = equation.replace(self.auxiliar_symbols[0],'')
         if equation == '':
-            message = "No equation given."
+            message = "No equation given. "
             return False, message
         else:
             not_accepted = []
@@ -92,7 +92,7 @@ class functionClass:
                     count_equals = count_equals + 1
             
             if count_equals > 1:
-                message = "Too many equal signs."
+                message = "Too many equal signs. "
                 return False, message
 
             if not_accepted == []:
@@ -114,7 +114,7 @@ class functionClass:
         brackets = [self.opening_groupers[1], self.closing_groupers[1]]
         curly_brackets = [self.opening_groupers[2], self.closing_groupers[2]]
 
-        message = "Brackets are correct."
+        message = "Brackets are correct. "
 
         i = 0
         for char in equation:
@@ -145,7 +145,7 @@ class functionClass:
                 equation = equation.replace(self.closing_groupers[i],self.closing_groupers[0])
             return equation, message
         else:
-            message = "Missing at least one closing bracket."
+            message = "Missing at least one closing bracket. "
             return False, message
 
     def list_transform(self, equation):
@@ -153,7 +153,7 @@ class functionClass:
 
         was_number = False
         list_equation = []
-        message = "Equation transformed to list format."
+        message = "Equation transformed to list format. "
         for char in equation:
             if char not in self.together:
                 list_equation.append(char)
@@ -168,10 +168,10 @@ class functionClass:
         i = 0
         for item in list_equation:
             if item.count('.') > 1:
-                message = 'The number "' + item + '" is written incorrectly.'
+                message = 'The number "' + item + '" is written incorrectly. '
                 return False, message
             elif item == '.':
-                message = "There is an isolated number divider ('.' or ',')."
+                message = "There is an isolated number divider ('.' or ','). "
                 return False, message
             else:
                 if item[0] == '.':
@@ -213,10 +213,11 @@ class functionClass:
 
             i = i + 1
 
-        message = "No added multiplication symbols."
-        if len(equation) > initial_length:
-            message = "Number of aditional multiplication symbols added: " + str(len(equation) - initial_length)
-        return equation, message
+        message = "No added multiplication symbols. "
+        counter = len(equation) - initial_length
+        if counter > 0:
+            message = "Number of aditional multiplication symbols added: " + str(counter)
+        return equation, message, counter
 
     def simplify_plus_minus(self,equation):
         i = 1
@@ -233,10 +234,10 @@ class functionClass:
                     equation.pop(i-1)
                 i = i - 1
             i = i + 1
-        message = "No plus or minus symbols where changed."            
+        message = "No plus or minus symbols where changed. "
         if counter > 0:
-            message = 'Number of plus or minus symbols simplified: ' + str(counter)
-        return equation, message
+            message = "Number of plus or minus symbols simplified: " + str(counter)
+        return equation, message, counter
 
     def simple_solve_preparation(self,equation):
         if self.is_number(equation[0]):
@@ -264,14 +265,14 @@ class functionClass:
 
     def full_preparation(self, equation):
         equation = self.insert_multiplication_symbol(equation)[0]
-        equation = self.simplify_plus_minus(equation)
+        equation = self.simplify_plus_minus(equation)[0]
         equation = self.simple_solve_preparation(equation)
 
         return equation        
 
     def simple_solve(self,equation):
         equation = self.full_preparation(equation)
-
+        message = "Section solved. "
         #solve exponentiation
         i = 1
         while i < len(equation):
@@ -291,9 +292,9 @@ class functionClass:
                     if float(equation[i+1]) != 0:
                         equation[i+1] = str(float(equation[i-1]) / float(equation[i+1]))
                     else:
-                        if random.randint(0,100) < 10:  print("Hey, that's illegal! You can't just divide by zero.")
-                        else:   print("Can't divide by zero.")
-                        return False
+                        if random.randint(0,100) < 5:  message = "Hey, that's illegal! You can't just divide by zero. "
+                        else:   message = "Can't divide by zero. "
+                        return False, message
                 equation.pop(i-1)
                 equation.pop(i-1)
                 i = i - 1
@@ -312,14 +313,16 @@ class functionClass:
         i = 1
         while i < len(equation):
             if equation[i] in self.most_math_symbols and equation[i-1] in self.most_math_symbols:
-                print('Invalid series of symbols.')
-                return False
+                message = "Invalid series of symbols. "
+                return False, message
             i = i + 1
-        return equation
+        return equation, message
 
     def bracket_solve(self, equation):     
         equation = self.full_preparation(equation)
 
+        message = "All bracket solved. "
+        error_message = ''
         last_opening = 0
         first_closing = 0
         i = 0
@@ -328,34 +331,35 @@ class functionClass:
                 last_opening = i + 1
             if equation[i] == self.closing_groupers[0]:
                 first_closing = i
-                equation_section = self.simple_solve(equation[last_opening:first_closing])
+                equation_section,error_message = self.simple_solve(equation[last_opening:first_closing])
                 if equation_section != False and len(equation_section) == 1:
                     equation = equation[:last_opening-1] + equation_section + equation[first_closing+1:]
-                    equation = self.bracket_solve(equation)
+                    equation,error_message = self.bracket_solve(equation)
                 elif equation_section != False and len(equation_section) > 1:
                     equation = equation[:last_opening-1] + [self.opening_groupers[1]] + equation_section + [self.closing_groupers[1]] + equation[first_closing+1:]
-                    equation = self.bracket_solve(equation)
+                    equation,error_message = self.bracket_solve(equation)
                 else:
                     equation = False
                 
             i = i + 1
 
-        if equation: equation = self.simple_solve(equation)
+        if equation: equation,error_message = self.simple_solve(equation)
         if equation: 
             for i in range(len(equation)):
                 if equation[i] == self.opening_groupers[1]: equation[i] = self.opening_groupers[0]
                 elif equation[i] == self.closing_groupers[1]: equation[i] = self.closing_groupers[0]
-            return equation
+            return equation, message
 
-        else:   return False
+        else:   
+            return False, error_message
 
 
     def get_simple_result(self, equation):
         if self.equality[0] in equation:
             if equation[0] == equation[2]:
-                return True
+                return True, ''.join(equation),"Both sides are equal:\n"
             else:
-                return False
+                return False, ''.join(equation),"Both sides aren't equal:\n"
         else:
             
-            return equation[0]
+            return True, ''.join(equation), "Answer:\n"

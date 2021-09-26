@@ -14,27 +14,22 @@ def solve(equation=''):
     #if no variable detected, simply solve the equation
     if equation:
         if  not any(char in function.variables for char in equation):
-            equation = function.bracket_solve(equation)
-            if equation: result = function.get_simple_result(equation)
-
-            if result == True:
-                equation[1] = ' ' + equation[1] + ' '
-                print('Your input: ' + initial_equation + ' is TRUE')
-                print(''.join(equation))
-            elif result == False:
-                equation[1] = ' ' + equation[1] + ' '
-                print('Your input: ' + initial_equation + ' is FALSE')
-                print(''.join(equation))
+            equation, message = function.bracket_solve(equation)
+            if equation:
+                result, full_equation, message = function.get_simple_result(equation)
+                return result, full_equation, message
             else:
-                print('The answer for your equation: ' + initial_equation + ' is:')
-                print(result)
+                return False, equation, message
                 
         else:
-            print('Variable solve is still not supported.')        
-            equation = function.bracket_solve(equation)
-            print(equation)
+            aux_message = 'Variable solve is still not supported: '
+            return False, ''.join(equation), aux_message
+
 
 
 if __name__ == "__main__":
     equation = input('Please write your equation: ')
-    solve(equation)
+    result, equation, message = solve(equation)
+    if equation:    print(str(message) + str(equation))
+    else:
+        print(str(message))
