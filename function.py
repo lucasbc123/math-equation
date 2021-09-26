@@ -77,12 +77,12 @@ class functionClass:
         message = "All characters are valid. "
         if type(equation) is not str:
             message = 'Current input: ' + str(type(equation)) + '. Input should be of <str> type. '
-            return False, message
+            return False, equation, message
         
         equation = equation.replace(self.auxiliar_symbols[0],'')
         if equation == '':
             message = "No equation given. "
-            return False, message
+            return False, equation, message
         else:
             not_accepted = []
             for char in equation:
@@ -93,17 +93,17 @@ class functionClass:
             
             if count_equals > 1:
                 message = "Too many equal signs. "
-                return False, message
+                return False, equation, message
 
             if not_accepted == []:
                 equation = equation.replace(',','.')
-                return equation, message
+                return True, equation, message
             else:
                 text = ''
                 for aux in not_accepted:
                     text = text + "'" + aux + "' , "
                 message = "Not supported symbols: " + text[:-3]
-                return False, message
+                return False, equation, message
     
     def validate_groupers(self,equation):
 
@@ -127,13 +127,13 @@ class functionClass:
                 
                 if closing_groupers > opening_groupers:
                     message = "Unexpected closing brackets at index: " + str(i)
-                    return False, message
+                    return False, equation, message
 
                 if (last_grouper[-1] in parentheses and char not in parentheses) \
                     or (last_grouper[-1] in brackets and char not in brackets) \
                     or (last_grouper[-1] in curly_brackets and char not in curly_brackets):
                     message = "Closing brackets of unexpected type at index: " + str(i)
-                    return False, message
+                    return False, equation, message
                 else:
                     last_grouper.pop()
 
@@ -143,10 +143,10 @@ class functionClass:
             for i in range(len(self.opening_groupers)):
                 equation = equation.replace(self.opening_groupers[i],self.opening_groupers[0])
                 equation = equation.replace(self.closing_groupers[i],self.closing_groupers[0])
-            return equation, message
+            return True, equation, message
         else:
             message = "Missing at least one closing bracket. "
-            return False, message
+            return False, equation, message
 
     def list_transform(self, equation):
         equation = equation.replace(',','.')
@@ -169,10 +169,10 @@ class functionClass:
         for item in list_equation:
             if item.count('.') > 1:
                 message = 'The number "' + item + '" is written incorrectly. '
-                return False, message
+                return False, list_equation, message
             elif item == '.':
                 message = "There is an isolated number divider ('.' or ','). "
-                return False, message
+                return False, list_equation, message
             else:
                 if item[0] == '.':
                     list_equation[i] = '0' + item
@@ -181,7 +181,7 @@ class functionClass:
 
             i = i + 1
 
-        return list_equation, message    
+        return True, list_equation, message    
 
     def insert_multiplication_symbol(self, equation):
         initial_length = len(equation)
@@ -320,7 +320,7 @@ class functionClass:
 
     def bracket_solve(self, equation):     
         equation = self.full_preparation(equation)
-
+        result = True
         message = "All bracket solved. "
         error_message = ''
         last_opening = 0
@@ -334,24 +334,24 @@ class functionClass:
                 equation_section,error_message = self.simple_solve(equation[last_opening:first_closing])
                 if equation_section != False and len(equation_section) == 1:
                     equation = equation[:last_opening-1] + equation_section + equation[first_closing+1:]
-                    equation,error_message = self.bracket_solve(equation)
+                    result, equation, error_message = self.bracket_solve(equation)
                 elif equation_section != False and len(equation_section) > 1:
                     equation = equation[:last_opening-1] + [self.opening_groupers[1]] + equation_section + [self.closing_groupers[1]] + equation[first_closing+1:]
-                    equation,error_message = self.bracket_solve(equation)
+                    result, equation, error_message = self.bracket_solve(equation)
                 else:
                     equation = False
                 
             i = i + 1
 
-        if equation: equation,error_message = self.simple_solve(equation)
+        if result: equation,error_message = self.simple_solve(equation)
         if equation: 
             for i in range(len(equation)):
                 if equation[i] == self.opening_groupers[1]: equation[i] = self.opening_groupers[0]
                 elif equation[i] == self.closing_groupers[1]: equation[i] = self.closing_groupers[0]
-            return equation, message
+            return True, equation, message
 
         else:   
-            return False, error_message
+            return False, equation, error_message
 
 
     def get_simple_result(self, equation):

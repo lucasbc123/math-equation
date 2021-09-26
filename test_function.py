@@ -16,9 +16,9 @@ class TestFunctionClass(unittest.TestCase):
         correct_message = "Input should be of <str> type."
         for equation in type_list:
             input = str(equation)
-            test, message = function.simple_character_check(equation)
-            self.assertEqual(test, False,\
-                "input: " + input + " output: " + str(test) + " correct output: False" )
+            result, _, message = function.simple_character_check(equation)
+            self.assertEqual(result, False,\
+                "input: " + input + " output: " + str(result) + " correct output: False" )
             self.assertIn(correct_message,message,\
                 "input: " + input + " Error message is incorrect. It should have: " + correct_message)
 
@@ -31,9 +31,9 @@ class TestFunctionClass(unittest.TestCase):
 
         for equation in wrong_example_list:
             input = str(equation)
-            test, message = function.simple_character_check(equation)
-            self.assertEqual(test, False,\
-                "input: " + input + " output: " + str(test) + " correct output: False" )
+            resutl, _, message = function.simple_character_check(equation)
+            self.assertEqual(resutl, False,\
+                "input: " + input + " output: " + str(resutl) + " correct output: False" )
             self.assertIn(correct_message,message,\
                 "input: " + input + " Error message is incorrect. It should have: " + correct_message)
 
@@ -44,9 +44,9 @@ class TestFunctionClass(unittest.TestCase):
 
         for equation in wrong_example_list:
             input = str(equation)
-            test, message = function.simple_character_check(equation)
-            self.assertEqual(test, False,\
-                "input: " + input + " output: " + str(test) + " correct output: False" )
+            resutl, _, message = function.simple_character_check(equation)
+            self.assertEqual(resutl, False,\
+                "input: " + input + " output: " + str(resutl) + " correct output: False" )
             self.assertIn(correct_message,message,\
                 "input: " + input + " Error message is incorrect. It should have: " + correct_message)                
 
@@ -63,9 +63,13 @@ class TestFunctionClass(unittest.TestCase):
         correct_message = "All characters are valid."
         aux_index = [i*2 for i in range(int(len(correct_example_list)/2))]
         for i in aux_index:
-            test, message = function.simple_character_check(correct_example_list[i])
-            self.assertEqual(test,correct_example_list[i+1],\
-                "input: " + str(correct_example_list[i]) + " output: " + str(test) + " correct output: " + str(correct_example_list[i+1]))
+            input = correct_example_list[i]
+            output = correct_example_list[i+1]
+            result, equation, message = function.simple_character_check(input)
+            self.assertEqual(result, True,\
+                "input: " + input + " output: " + str(result) + " correct output: True")                       
+            self.assertEqual(equation,correct_example_list[i+1],\
+                "input: " + str(input) + " output: " + str(equation) + " correct output: " + str(output))
             self.assertIn(correct_message,message,\
                 "input: " + input + " Error message is incorrect. It should have: " + correct_message)                                
 
@@ -75,9 +79,9 @@ class TestFunctionClass(unittest.TestCase):
         correct_message = "Not supported symbols: "
         for equation in wrong_example_list:
             input = str(equation)
-            test, message = function.simple_character_check(equation)
-            self.assertEqual(test, False,\
-                "input: " + input + " output: " + str(test) + " correct output: False" )
+            result, equation, message = function.simple_character_check(equation)
+            self.assertEqual(result, False,\
+                "input: " + input + " output: " + str(result) + " correct output: False" )
             self.assertIn(correct_message,message,\
                 "input: " + input + " Error message is incorrect. It should have: " + correct_message)                
         
@@ -90,9 +94,9 @@ class TestFunctionClass(unittest.TestCase):
         correct_message = "Unexpected closing brackets at index:"
         for equation in wrong_example_list:
             input = str(equation)
-            test, message = function.validate_groupers(equation)
-            self.assertEqual(test, False,\
-                "input: " + input + " output: " + str(test) + " correct output: False" )
+            result, _, message = function.validate_groupers(equation)
+            self.assertEqual(result, False,\
+                "input: " + input + " output: " + str(result) + " correct output: False" )
             self.assertIn(correct_message,message,\
                 "input: " + input + " Error message is incorrect. It should have: " + correct_message) 
 
@@ -102,9 +106,9 @@ class TestFunctionClass(unittest.TestCase):
         correct_message = "Closing brackets of unexpected type at index:"
         for equation in wrong_example_list:
             input = str(equation)
-            test, message = function.validate_groupers(equation)
-            self.assertEqual(test, False,\
-                "input: " + input + " output: " + str(test) + " correct output: False" )
+            result, _, message = function.validate_groupers(equation)
+            self.assertEqual(result, False,\
+                "input: " + input + " output: " + str(result) + " correct output: False" )
             self.assertIn(correct_message,message,\
                 "input: " + input + " Error message is incorrect. It should have: " + correct_message)
 
@@ -114,9 +118,9 @@ class TestFunctionClass(unittest.TestCase):
         correct_message = "Missing at least one closing bracket."
         for equation in wrong_example_list:
             input = str(equation)
-            test, message = function.validate_groupers(equation)
-            self.assertEqual(test, False,\
-                "input: " + input + " output: " + str(test) + " correct output: False" )
+            result, _, message = function.validate_groupers(equation)
+            self.assertEqual(result, False,\
+                "input: " + input + " output: " + str(result) + " correct output: False" )
             self.assertIn(correct_message,message,\
                 "input: " + input + " Error message is incorrect. It should have: " + correct_message)                
 
@@ -135,9 +139,9 @@ class TestFunctionClass(unittest.TestCase):
         for i in aux_index:
             input  = str(correct_example_list[i])
             output = str(correct_example_list[i+1])
-            test, message = function.validate_groupers(correct_example_list[i])
-            self.assertEqual(test,correct_example_list[i+1],\
-                "input: " + input + " output: " + str(test) + " correct output: " +  output)
+            result, equation, message = function.validate_groupers(correct_example_list[i])
+            self.assertEqual(equation,correct_example_list[i+1],\
+                "input: " + input + " output: " + str(equation) + " correct output: " +  output)
             self.assertIn(correct_message,message,\
                 "input: " + input + " Error message is incorrect. It should have: " + correct_message)                
 
@@ -148,9 +152,9 @@ class TestFunctionClass(unittest.TestCase):
         correct_message = "is written incorrectly."
         for equation in wrong_example_list:
             input = str(equation)
-            test, message = function.list_transform(equation)
-            self.assertEqual(test, False,\
-                "input: " + input + " output: " + str(test) + " correct output: False" )
+            result, _, message = function.list_transform(equation)
+            self.assertEqual(result, False,\
+                "input: " + input + " output: " + str(result) + " correct output: False" )
             self.assertIn(correct_message,message,\
                 "input: " + input + " Error message is incorrect. It should have: " + correct_message)       
 
@@ -160,9 +164,9 @@ class TestFunctionClass(unittest.TestCase):
         correct_message = "There is an isolated number divider ('.' or ',')."
         for equation in wrong_example_list:
             input = str(equation)
-            test, message = function.list_transform(equation)
-            self.assertEqual(test, False,\
-                "input: " + input + " output: " + str(test) + " correct output: False" )
+            result, _, message = function.list_transform(equation)
+            self.assertEqual(result, False,\
+                "input: " + input + " output: " + str(result) + " correct output: False" )
             self.assertIn(correct_message,message,\
                 "input: " + input + " Error message is incorrect. It should have: " + correct_message)                                         
 
@@ -179,9 +183,9 @@ class TestFunctionClass(unittest.TestCase):
         for i in aux_index:
             input  = str(correct_example_list[i])
             output = str(correct_example_list[i+1])
-            test, message = function.list_transform(correct_example_list[i])
-            self.assertEqual(test,correct_example_list[i+1],\
-                "input: " + input + " output: " + str(test) + " correct output: " +  output)
+            result, equation, message = function.list_transform(correct_example_list[i])
+            self.assertEqual(equation,correct_example_list[i+1],\
+                "input: " + input + " output: " + str(equation) + " correct output: " +  output)
             self.assertIn(correct_message,message,\
                 "input: " + input + " Error message is incorrect. It should have: " + correct_message)                                
                 
@@ -373,9 +377,9 @@ class TestFunctionClass(unittest.TestCase):
         correct_message = "divide by zero."
         for equation in wrong_example_list:
             input = str(equation)            
-            test, message = function.bracket_solve(equation)
-            self.assertEqual(test, False,\
-                "input: " + input + " output: " + str(test) + " correct output: False" )
+            result, _, message = function.bracket_solve(equation)
+            self.assertEqual(result, False,\
+                "input: " + input + " output: " + str(result) + " correct output: False" )
             self.assertIn(correct_message,message,\
                 "input: " + input + " Error message is incorrect. It should have: " + correct_message)
 
@@ -387,9 +391,9 @@ class TestFunctionClass(unittest.TestCase):
         correct_message = "Invalid series of symbols."
         for equation in wrong_example_list:
             input = str(equation)            
-            test, message = function.bracket_solve(equation)
-            self.assertEqual(test, False,\
-                "input: " + input + " output: " + str(test) + " correct output: False" )
+            result, _, message = function.bracket_solve(equation)
+            self.assertEqual(result, False,\
+                "input: " + input + " output: " + str(result) + " correct output: False" )
             self.assertIn(correct_message,message,\
                 "input: " + input + " Error message is incorrect. It should have: " + correct_message)                
 
@@ -416,9 +420,11 @@ class TestFunctionClass(unittest.TestCase):
         for i in aux_index:
             input  = str(correct_example_list[i])
             output = str(correct_example_list[i+1])
-            test, message = function.bracket_solve(correct_example_list[i])
-            self.assertEqual(test,correct_example_list[i+1],\
-                "input: " + input + " output: " + str(test) + " correct output: " +  output)           
+            result, equation, message = function.bracket_solve(correct_example_list[i])
+            self.assertEqual(result, True,\
+                "input: " + input + " output: " + str(result) + " correct output: True" )            
+            self.assertEqual(equation,correct_example_list[i+1],\
+                "input: " + input + " output: " + str(equation) + " correct output: " +  output)           
             self.assertIn(correct_message,message,\
                 "input: " + input + " Error message is incorrect. It should have: " + correct_message)                
 
