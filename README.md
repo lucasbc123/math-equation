@@ -13,4 +13,6 @@ As the project evolves, more functionalities should be added, such as resolving 
   * function.py has all logistic algorithms to make solving an equation possible.
     a more detailed explanation can be found inside it's own file.
  
+* tests:
+
   * test_function.py has all automated tests for the function.py file.
