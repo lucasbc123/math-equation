@@ -1,6 +1,11 @@
 import unittest
-from function import functionClass
+import sys
 
+import os
+path = str(os.path.dirname(os.path.abspath(__file__))).replace('\\tests','')
+sys.path.append(path)
+
+from function import functionClass
 function = functionClass()
 
 class TestFunctionClass(unittest.TestCase):
